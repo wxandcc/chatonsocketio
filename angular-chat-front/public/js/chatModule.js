@@ -8,8 +8,12 @@ angular.module('chat',[
         return socketFactory();
 }).controller('testCtr',function(socket){
     var vm = this;
-    socket.emit('testEvent',{file:"abc"})
+    socket.emit('getFriends',{ userid : 11});
+    socket.on('getFriends',function(data){
+        console.log(data);
+    });
+    socket.emit('testEvent',{ uid :"11"});
     socket.on('news',function(data){
         vm.name = data;
-    })
+    });
 });
