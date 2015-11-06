@@ -1,0 +1,24 @@
+{
+  "name": "gamrule-chat",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {"start": "node app.js"},
+  "description": " chat app on socket.io using node express mysql",
+  "keywords" : "gamrule socket.io node express",
+  "homepage": "",
+  "bugs": { "url" : ""
+            , "email" : "weixlost@163.com"
+            },
+  "license": { "license" : "BSD" },
+  "author":{
+        "name" : "weixing"
+      , "email" : "weixing@gamrule.com"
+  },
+  "dependencies": {
+    "express": "~3.5.0",
+    "cookie-parser": "~1.0.1",
+    "body-parser": "~1.0.0",
+    "debug": "~0.7.4",
+    "socket.io": "^0.9.16"
+  }
+}
