@@ -11,7 +11,7 @@ exports.friends = function(uid,callback){
             ' on follow.fid = user.id where follow.uid='+parseInt(uid, 10),
             function(err,rows){
                 if(err) throw  err;
-                connection.release(); //将connect 扔回线程池
+                connection.release();
                 callback(null,rows);
             });
     })
