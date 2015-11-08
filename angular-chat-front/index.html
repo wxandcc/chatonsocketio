@@ -6,7 +6,12 @@
 </head>
 <body>
     chat with friends
+
 <div ng-controller="chatCtrl as vm">
+    <div ng-show="vm.formModel.needLogin">
+        <input ng-model="vm.formModel.userid"/>
+        <input type="button" value="login" ng-click="vm.login();"/>
+    </div>
     <div ng-repeat="friend in vm.friends">
         <div ng-click="vm.chatWithFriend(friend)">{{friend.username}}</div>
     </div>
@@ -17,7 +22,7 @@
                 {{vm.message}}
             </div>
             <div>
-                <input ng-model="vm.m.gotosend" />
+                <input ng-model="vm.formModel.gotosend" />
                 <input type="button" ng-click="vm.send(vm.currentChatUser);" value="send"/>
             </div>
         </div>
