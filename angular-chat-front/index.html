@@ -2,12 +2,20 @@
 <html lang="en"  ng-app="chat">
 <head>
     <meta charset="UTF-8">
-    <title>test</title>
+    <title>gamrule chat</title>
 </head>
 <body>
-    hello world
-<div ng-controller="testCtr as vm">
-    <div>{{vm.name}}</div>
+    chat with friends
+<div ng-controller="chatCtrl as vm">
+    <div ng-repeat="friend in vm.friends">
+        <div ng-click="vm.chatWithFriend(friend)">{{friend.username}}</div>
+    </div>
+    <div ng-if="vm.currentChatUser">
+        {{vm.currentChatUser.username}}
+        <div>
+            {{vm.message}}
+        </div>
+    </div>
 </div>
 </body>
 

@@ -6,14 +6,15 @@ angular.module('chat',[
     'btford.socket-io'
 ]).factory('socket', function (socketFactory) {
         return socketFactory();
-}).controller('testCtr',function(socket){
+}).controller('chatCtrl',function(socket){
     var vm = this;
     socket.emit('getFriends',{ userid : 11});
     socket.on('getFriends',function(data){
-        console.log(data);
+        vm.friends = data;
     });
-    socket.emit('testEvent',{ uid :"11"});
-    socket.on('news',function(data){
-        vm.name = data;
-    });
+
+    vm.chatWithFriend = function(friend){
+        socket.emit('chatWithFriend',friend);
+        vm.currentChatUser = friend;
+    }
 });

@@ -7,6 +7,8 @@ var server = require('http').Server(app);
 var io = require('socket.io');
 var io = io.listen(server);
 var user = require('./model/mysqlUser');
+var friendChat = require('./model/friendChat');
+var loginedUser = {};
 
 server.listen(8080);
 
@@ -18,17 +20,18 @@ app.get('/', function (req, res) {
 });
 
 io.on('connection', function (socket) {
-    socket.emit('news', { hello: 'world' });
-    socket.on('testEvent', function (data) {
-        console.log(data.uid);
-    });
     socket.on('getFriends',function(data){
-        //console.log(data.userid);return;
         user.friends(data.userid,function(error,friends){
             if(error) throw error;
             socket.emit('getFriends',friends);
         });
-
+        socket.currentUser = data;
     });
+
+    socket.on('chatWithFriend',function(data){
+        var room = friendChat.getFriendRoom(socket,data);
+        socket.join(room);
+    });
+
 });
 
