@@ -33,5 +33,11 @@ io.on('connection', function (socket) {
         socket.join(room);
     });
 
+    socket.on('sendFriendMessage',function(data){
+        var room = friendChat.getFriendRoom(socket,data.friend);
+        socket.broadcast.to(room).emit('sendFriendMessage',data.message+room+'<Br/>');
+    });
+
+
 });
 

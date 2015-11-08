@@ -13,8 +13,15 @@
     <div ng-if="vm.currentChatUser">
         {{vm.currentChatUser.username}}
         <div>
-            {{vm.message}}
+            <div>
+                {{vm.message}}
+            </div>
+            <div>
+                <input ng-model="vm.m.gotosend" />
+                <input type="button" ng-click="vm.send(vm.currentChatUser);" value="send"/>
+            </div>
         </div>
+
     </div>
 </div>
 </body>
