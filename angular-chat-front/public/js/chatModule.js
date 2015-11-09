@@ -11,15 +11,21 @@ angular.module('chat',[
     vm.formModel = {};
     vm.formModel.needLogin = true;
     vm.login = login;
+    vm.userMesage = {};
 
     function login(){
         if(!vm.formModel.userid) return;
         socket.emit('getFriends',{ userid : vm.formModel.userid});
         vm.formModel.needLogin = false;
-        vm.message = '';
     }
     socket.on('getFriends',function(data){
         vm.friends = data;
+        if(data){
+            angular.forEach(data,function(ele){
+                console.log(ele);
+                vm.userMesage[ele.id] = [];
+            })
+        }
     });
 
     vm.chatWithFriend = function(friend){
@@ -29,13 +35,13 @@ angular.module('chat',[
     vm.send = function(user){
         if(vm.formModel.gotosend){
             socket.emit('sendFriendMessage',{friend:user,message:vm.formModel.gotosend});
-            vm.message+='<p>'+vm.formModel.gotosend+'</p>';
+            vm.userMesage[user.id].push(vm.formModel.gotosend);
         }
     }
 
-    socket.on('sendFriendMessage',function(message){
-        console.log(message);
-        vm.message += "<p>"+message+"</p>";
+    socket.on('sendFriendMessage',function(data){
+        console.log(data);
+        vm.userMesage[data.fromid].push(data.message);
     });
 
 });
