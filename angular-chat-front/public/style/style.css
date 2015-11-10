@@ -12,7 +12,22 @@
 }
 .messageBox{
     float: left;
+    width: 200px;
 }
-.messageBox div{
-    clear: both;
+.messageBox .me{
+    background: #006666;
+    float:right;
+    min-height: 30px;
+
+}
+
+.messageBox .other{
+    background: #ffff00;
+    float: left;
+    min-height: 30px;
+}
+
+.radus {
+    border:2px solid;
+    border-radius:5px;
 }

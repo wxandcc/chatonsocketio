@@ -13,6 +13,9 @@ exports.socketEvent = function(io){
         socket.on('getFriends',function(data){
             user.friends(data.userid,function(error,friends){
                 if(error) throw error;
+                friends.forEach(function(friend){
+                    friend.chatRoom = friendChat.getFriendRoom(socket,friend);
+                })
                 socket.emit('getFriends',friends);
             });
             socket.currentUser = data;
@@ -40,8 +43,8 @@ exports.socketEvent = function(io){
 
         socket.on('sendFriendMessage',function(data){
             var room = friendChat.getFriendRoom(socket,data.friend);
-            var sendMessage = {fromid:socket.currentUser.userid,message: data.message};
-            friendChatRecord.pushChatRecord(room,{obj:sendMessage},pushChatRecordCb(socket,room));
+            var sendMessage = {chatRoom:room,message: data.message,from: socket.currentUser.userid,to:data.friend.id,timestamp:(new Date()).getTime()};
+            friendChatRecord.pushChatRecord(room,sendMessage,pushChatRecordCb(socket,room));
             socket.broadcast.to(room).emit('sendFriendMessage',sendMessage);
         });
 
@@ -61,7 +64,6 @@ exports.socketEvent = function(io){
 
 
 var pushChatRecordCb = function(socket,room){
-    var thatSocket = socket;
     return function(count){
         socket.emit('recordCount',count);
     }

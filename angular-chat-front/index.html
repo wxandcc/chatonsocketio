@@ -15,14 +15,15 @@
     <div class="friends">
         <div>friend lists</div>
         <div class="friends" ng-repeat="friend in vm.friends">
-            <div ng-class="{current: vm.currentChatUser.id == friend.id,newMsg:friend.newMsgArrv}" ng-click="vm.chatWithFriend(friend)">{{friend.username}}</div>
+            <div ng-class="{current: vm.currentChatUser.chatRoom == friend.chatRoom,newMsg:friend.newMsgArrv}" ng-click="vm.chatWithFriend(friend)">{{friend.username}}</div>
         </div>
     </div>
     <div class="messageBox" ng-if="vm.currentChatUser.id">
         I'm {{vm.formModel.userid}} and I'm chatting with {{vm.currentChatUser.id}}-{{vm.currentChatUser.username}}
         <div style="border: 1px dashed">
             <div>
-                <p ng-repeat="msg in vm.userMesage[vm.currentChatUser.id] track by $index">{{msg}}</p>
+                <div class="radus" ng-class="{me: msg.from == vm.formModel.userid,other:msg.from != vm.formModel.userid}"
+                     ng-repeat="msg in vm.userMesage[vm.currentChatUser.chatRoom] track by $index">{{msg.from}}: {{msg.timestamp|date}}:{{msg.message}}</div>
             </div>
             <div>
                 <input ng-model="vm.formModel.gotosend" />
