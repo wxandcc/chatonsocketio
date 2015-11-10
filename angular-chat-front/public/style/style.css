@@ -9,25 +9,49 @@
 .friends{
     float: left;
     width: 200px;
+    height: 100%;
 }
+
+.friends .friend{
+    height: 30px;
+    width: 100%;
+}
+
 .messageBox{
     float: left;
-    width: 200px;
+    width: 400px;
+    height: 500px;
+    overflow: scroll;
+    border: 1px dashed;
 }
 .messageBox .me{
     background: #006666;
     float:right;
     min-height: 30px;
-
+    clear: both;
 }
 
 .messageBox .other{
     background: #ffff00;
     float: left;
     min-height: 30px;
+    clear:both;
+}
+.messageinput{
+    float: right;
+    width: 100%;
 }
 
 .radus {
     border:2px solid;
     border-radius:5px;
 }
+.title{
+    text-align: center;
+}
+
+.chat{
+    float: left;
+    height: 100%;
+}
+

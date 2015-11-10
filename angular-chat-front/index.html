@@ -5,27 +5,28 @@
     <title>gamrule chat</title>
 </head>
 <body>
-    chat with friends
+
+    <div class="title">chat with friends</div>
 
 <div ng-controller="chatCtrl as vm">
     <div ng-show="vm.formModel.needLogin">
         <input ng-model="vm.formModel.userid"/>
         <input type="button" value="login" ng-click="vm.login();"/>
     </div>
-    <div class="friends">
-        <div>friend lists</div>
-        <div class="friends" ng-repeat="friend in vm.friends">
-            <div ng-class="{current: vm.currentChatUser.chatRoom == friend.chatRoom,newMsg:friend.newMsgArrv}" ng-click="vm.chatWithFriend(friend)">{{friend.username}}</div>
+    <div class="friends" ng-if="vm.friends">
+        <div class="friend">friend lists</div>
+        <div ng-repeat="friend in vm.friends">
+            <div class="friend" ng-class="{current: vm.currentChatUser.chatRoom == friend.chatRoom,newMsg:friend.newMsgArrv}" ng-click="vm.chatWithFriend(friend)">{{friend.username}}</div>
         </div>
     </div>
-    <div class="messageBox" ng-if="vm.currentChatUser.id">
-        I'm {{vm.formModel.userid}} and I'm chatting with {{vm.currentChatUser.id}}-{{vm.currentChatUser.username}}
-        <div style="border: 1px dashed">
-            <div>
+    <div  ng-if="vm.currentChatUser.id">
+        <div class="chat">
+            <div>I'm {{vm.formModel.userid}} and I'm chatting with {{vm.currentChatUser.id}}-{{vm.currentChatUser.username}}</div>
+            <div class="messageBox">
                 <div class="radus" ng-class="{me: msg.from == vm.formModel.userid,other:msg.from != vm.formModel.userid}"
                      ng-repeat="msg in vm.userMesage[vm.currentChatUser.chatRoom] track by $index">{{msg.from}}: {{msg.timestamp|date}}:{{msg.message}}</div>
             </div>
-            <div>
+            <div class="messageinput">
                 <input ng-model="vm.formModel.gotosend" />
                 <input type="button" ng-click="vm.send(vm.currentChatUser);" value="send"/>
             </div>
