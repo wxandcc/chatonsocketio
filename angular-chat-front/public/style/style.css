@@ -1,0 +1,18 @@
+.current{
+    background: white;
+}
+
+.newMsg{
+    background: red;
+}
+
+.friends{
+    float: left;
+    width: 200px;
+}
+.messageBox{
+    float: left;
+}
+.messageBox div{
+    clear: both;
+}

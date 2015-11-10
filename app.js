@@ -13,10 +13,6 @@ socketEvent.socketEvent(io);
 
 app.use(express.static('angular-chat-front'));
 
-app.get('/', function (req, res) {
-    res.sendfile(__dirname + '/index.html');
-});
-
 
 
 
