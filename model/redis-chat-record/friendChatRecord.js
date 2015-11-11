@@ -30,6 +30,18 @@ var pushFriendChatRecord = function(room,record,cb){
     });
 }
 
-exports.getChatRecord = getFriendChatRecord;
+var getRecordCount = function(room,cb){
+    redisClient.llen(room,function(error,recordCount){
+        if(error) throw error;
+        var rt = {
+            room:room,
+            total: recordCount
+        }
+        cb(rt);
+    })
+}
 
+
+exports.recordCount = getRecordCount;
+exports.getChatRecord = getFriendChatRecord;
 exports.pushChatRecord = pushFriendChatRecord;

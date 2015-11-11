@@ -26,6 +26,18 @@
                 <div class="radus" ng-class="{me: msg.from == vm.formModel.userid,other:msg.from != vm.formModel.userid}"
                      ng-repeat="msg in vm.userMesage[vm.currentChatUser.chatRoom] track by $index">{{msg.from}}: {{msg.timestamp|date}}:{{msg.message}}</div>
             </div>
+            <div>
+                <span ng-if="vm.messagePager[vm.currentChatUser.chatRoom].preview">
+                    preview-{{vm.messagePager[vm.currentChatUser.chatRoom].preview}}
+                </span>
+                <span ng-if="vm.messagePager[vm.currentChatUser.chatRoom].current">
+                    current-{{vm.messagePager[vm.currentChatUser.chatRoom].current}}
+                </span>
+                <span ng-if="vm.messagePager[vm.currentChatUser.chatRoom].hasNext()">
+                    next-{{vm.messagePager[vm.currentChatUser.chatRoom].next}}
+                </span>
+            </div>
+
             <div class="messageinput">
                 <input ng-model="vm.formModel.gotosend" />
                 <input type="button" ng-click="vm.send(vm.currentChatUser);" value="send"/>

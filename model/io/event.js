@@ -39,6 +39,9 @@ exports.socketEvent = function(io){
                     io.sockets.socket(ele).join(room); //self sockets join the chat room
                 });
             }
+
+            friendChatRecord.recordCount(room,getRecordCountCb(socket,room));
+
         });
 
         socket.on('sendFriendMessage',function(data){
@@ -66,6 +69,13 @@ exports.socketEvent = function(io){
 var pushChatRecordCb = function(socket,room){
     return function(count){
         socket.emit('recordCount',count);
+    }
+}
+
+var getRecordCountCb = function(socket,room){
+    var rt = {room:room};
+    return function(recordPagination){
+        socket.emit('pagination',recordPagination);
     }
 }
 
