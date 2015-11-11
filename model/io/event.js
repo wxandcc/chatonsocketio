@@ -51,6 +51,15 @@ exports.socketEvent = function(io){
             socket.broadcast.to(room).emit('sendFriendMessage',sendMessage);
         });
 
+
+        socket.on('friendChatRecord',function(data){
+            var end = data.total - (data.page-1) * data.pagesize;
+            var start =  data.total -  data.page * data.pagesize;
+            friendChatRecord.getChatRecord(data.room,start,end,function(records){
+                socket.emit('sendFriendChatRecord',records);
+            })
+        });
+
         socket.on('disconnect',function(){
             var socketindex;
             if(!socket.currentUser) return;

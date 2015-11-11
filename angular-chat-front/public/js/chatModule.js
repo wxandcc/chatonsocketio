@@ -8,14 +8,16 @@ angular.module('chat',[
         return socketFactory();
 }).service('pagination',function(){
     var pagination = function(pager,pagesize){
+        this.totalMessage = pager.total;
         this.total = 0;
         this.preview = 0;
         this.next = 0;
         this.current = 1;
+        this.loaded = 0;
         if(!pagesize) pagesize=10;
         this.pagesize = pagesize;
         if(pager.total) this.total = Math.ceil(pager.total/pagesize);
-        if(this.total>1) this.next=2;
+        if(this.total>1) this.next=1;
     }
     pagination.prototype.hasNext = function(){
         if(this.current< this.total) return true;
@@ -26,9 +28,8 @@ angular.module('chat',[
             this.preview = this.current-1;
             this.current = this.next;
             if(this.total> this.next) this.next++;
-        }else{
-            return this.current;
         }
+        return this.current;
     }
 
     this.getPagination = function(pager,pagesize){
@@ -91,6 +92,28 @@ angular.module('chat',[
     });
     socket.on('pagination',function(pager){
         vm.messagePager[pager.room] = pagination.getPagination(pager,10);
-        console.log(vm.messagePager);
     });
+    vm.recordNextPage = function(room){
+        pagination = vm.messagePager[room];
+        console.log(pagination);
+        var data = {
+            room: room,
+            page: pagination.nextPage(),
+            pagesize : pagination.pagesize,
+            total: pagination.totalMessage
+        };
+        console.log(data);
+        socket.emit('friendChatRecord',data);
+    }
+        socket.on('sendFriendChatRecord',function(data){
+            if(data.length>0){
+                data.reverse();
+                angular.forEach(data,function(ele){
+                    var message = JSON.parse(ele);
+                    vm.userMesage[message.chatRoom].unshift(message);
+                });
+            }
+        });
+
+
 });
