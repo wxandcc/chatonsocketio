@@ -53,8 +53,9 @@ exports.socketEvent = function(io){
 
 
         socket.on('friendChatRecord',function(data){
-            var end = data.total - (data.page-1) * data.pagesize;
+            var end = data.total-1- (data.page-1) * data.pagesize;
             var start =  data.total -  data.page * data.pagesize;
+            if(start<0) start=0;
             friendChatRecord.getChatRecord(data.room,start,end,function(records){
                 socket.emit('sendFriendChatRecord',records);
             })

@@ -11,8 +11,8 @@ angular.module('chat',[
         this.totalMessage = pager.total;
         this.total = 0;
         this.preview = 0;
-        this.next = 0;
-        this.current = 1;
+        this.next = 1;
+        this.current = 0;
         this.loaded = 0;
         if(!pagesize) pagesize=10;
         this.pagesize = pagesize;
@@ -25,7 +25,7 @@ angular.module('chat',[
     }
     pagination.prototype.nextPage = function(){
         if(this.current< this.total){
-            this.preview = this.current-1;
+            if( this.current>0) this.preview = this.current-1;
             this.current = this.next;
             if(this.total> this.next) this.next++;
         }
@@ -91,18 +91,16 @@ angular.module('chat',[
         console.log('recordCount',data);
     });
     socket.on('pagination',function(pager){
-        vm.messagePager[pager.room] = pagination.getPagination(pager,10);
+        if(typeof vm.messagePager[pager.room] === "undefined") vm.messagePager[pager.room] = pagination.getPagination(pager,10);
     });
     vm.recordNextPage = function(room){
-        pagination = vm.messagePager[room];
-        console.log(pagination);
+        var pagination = vm.messagePager[room];
         var data = {
             room: room,
             page: pagination.nextPage(),
             pagesize : pagination.pagesize,
             total: pagination.totalMessage
         };
-        console.log(data);
         socket.emit('friendChatRecord',data);
     }
         socket.on('sendFriendChatRecord',function(data){
