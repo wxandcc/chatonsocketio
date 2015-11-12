@@ -21,10 +21,12 @@
     </div>
     <div  ng-if="vm.currentChatUser.id">
         <div class="chat">
-            <div>I'm {{vm.formModel.userid}} and I'm chatting with {{vm.currentChatUser.id}}-{{vm.currentChatUser.username}}</div>
+            <div>I'm chatting with {{vm.currentChatUser.username}}</div>
             <div class="messageBox">
-                <div class="radus" ng-class="{me: msg.from == vm.formModel.userid,other:msg.from != vm.formModel.userid}"
-                     ng-repeat="msg in vm.userMesage[vm.currentChatUser.chatRoom] track by $index">{{msg.from}}: {{msg.timestamp|date:"yyyy-MM-dd hh:mm:ss"}}:{{msg.message}}</div>
+                <div class="radus" ng-class="{me: msg.from == vm.formModel.userid,other:msg.from != vm.formModel.userid}" ng-repeat="msg in vm.userMesage[vm.currentChatUser.chatRoom] track by $index">
+                    {{vm.frindMap[msg.from].username}}: {{msg.timestamp|date:"yyyy-MM-dd hh:mm:ss"}}
+                    <p>{{msg.message}}</p>
+                </div>
             </div>
             <div>
                 <span ng-click="vm.recordNextPage(vm.currentChatUser.chatRoom)" ng-if="vm.messagePager[vm.currentChatUser.chatRoom].hasNext()">

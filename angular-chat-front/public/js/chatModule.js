@@ -45,18 +45,23 @@ angular.module('chat',[
     vm.userMesage = {};//chat record
     vm.currentChatUser = {};
     vm.messagePager={};//record pagination
+    vm.frindMap = {}; //frind id=>name map
 
     function login(){
         if(!vm.formModel.userid) return;
         socket.emit('getFriends',{ userid : vm.formModel.userid});
         vm.formModel.needLogin = false;
+        vm.frindMap[vm.formModel.userid] = {
+            id: vm.formModel.userid,
+            username: "me"
+        }
     }
     socket.on('getFriends',function(data){
         vm.friends = data;
         if(data){
             angular.forEach(data,function(ele){
-                console.log(ele);
                 vm.userMesage[ele.chatRoom] = [];
+                vm.frindMap[ele.id] = ele;
             })
         }
     });
