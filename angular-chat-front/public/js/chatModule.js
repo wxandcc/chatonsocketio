@@ -107,7 +107,8 @@ angular.module('chat',[
             total: pagination.totalMessage
         };
         socket.emit('friendChatRecord',data);
-    }
+            console.log(data);
+        }
         socket.on('sendFriendChatRecord',function(data){
             if(data.length>0){
                 data.reverse();
@@ -117,6 +118,5 @@ angular.module('chat',[
                 });
             }
         });
-
 
 });

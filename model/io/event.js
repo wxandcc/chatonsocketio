@@ -15,7 +15,7 @@ exports.socketEvent = function(io){
                 if(error) throw error;
                 friends.forEach(function(friend){
                     friend.chatRoom = friendChat.getFriendRoom(socket,friend);
-                })
+                });
                 socket.emit('getFriends',friends);
             });
             socket.currentUser = data;
