@@ -3,7 +3,7 @@
  */
 
 
-var user = require('../mysqlUser');
+var user = require('../orm/friends');
 var friendChat = require('./friendChat');
 var friendChatRecord = require('../redis-chat-record/friendChatRecord');
 var loginedUser = {};
