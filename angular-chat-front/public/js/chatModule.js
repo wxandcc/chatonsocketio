@@ -3,8 +3,9 @@
  */
 
 angular.module('chat',[
-    'btford.socket-io'
-]).factory('socket', function (socketFactory) {
+    'btford.socket-io',
+    'angularSocket'
+]).factory('btford-socket', function (socketFactory) {
         return socketFactory();
 }).service('pagination',function(){
     var pagination = function(pager,pagesize){
@@ -37,7 +38,7 @@ angular.module('chat',[
         return new pagination(pager,pagesize);
     }
 })
-    .controller('chatCtrl',function(socket,pagination){
+    .controller('chatCtrl',['grSocket','pagination',function(socket,pagination){
     var vm = this;
     vm.formModel = {};
     vm.formModel.needLogin = true;
@@ -119,4 +120,4 @@ angular.module('chat',[
             }
         });
 
-});
+}]);
