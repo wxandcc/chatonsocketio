@@ -7,7 +7,8 @@ angular.module('chat',[
     'angularSocket'
 ]).factory('btford-socket', function (socketFactory) {
         return socketFactory();
-}).service('pagination',function(){
+})
+    .service('pagination',function(){
     var pagination = function(pager,pagesize){
         this.fromid = pager.startid;
         this.totalMessage = pager.total;
@@ -149,6 +150,11 @@ angular.module('chat',[
     socket.on('pagination',function(pager){
         if(typeof vm.messagePager[pager.room] === "undefined") vm.messagePager[pager.room] = pagination.getPagination(pager,10);
     });
+    socket.on('reconnect',function(info){
+        socket.emit('getFriends',{ userid : vm.formModel.userid});
+        console.log("info");
+    });
+
 }])
     .controller("chatFindUserCtrl",['grSocket',function(socket){
         var vm = this;
