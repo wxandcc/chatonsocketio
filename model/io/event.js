@@ -5,7 +5,7 @@
 
 var user = require('../orm/friends');
 var friendChat = require('./friendChat');
-var friendChatRecord = require('../redis-chat-record/friendChatRecord');
+var friendChatRecord = require('../orm/record.js');
 var loginedUser = {};
 
 exports.socketEvent = function(io){
@@ -13,8 +13,9 @@ exports.socketEvent = function(io){
         socket.on('getFriends',function(data){
             user.friends(data.userid,function(error,friends){
                 if(error) throw error;
-                friends.forEach(function(friend){
-                    friend.chatRoom = friendChat.getFriendRoom(socket,friend);
+
+                friends.forEach(function(fr){
+                    fr.chatRoom = friendChat.getFriendRoom(data.userid,fr.id);
                 });
                 socket.emit('getFriends',friends);
             });
@@ -26,29 +27,62 @@ exports.socketEvent = function(io){
             }
         });
 
+        socket.on('getChatRooms',function(data){
+            var cb = function(socket){
+                return function(chatRooms){
+                    chatRooms.forEach(function(chat){
+                        chat.room = friendChat.getFriendRoom(chat.fr,chat.tid);
+                    });
+                    socket.emit("chatRooms",chatRooms);
+                }
+            }
+            friendChat.userChatRooms(data.userid,cb(socket));
+        });
+
         socket.on('chatWithFriend',function(data){
-            var room = friendChat.getFriendRoom(socket,data);
+
+            var room = friendChat.getFriendRoom(socket.currentUser.userid,data.id);
+            friendChat.checkRoom(socket.currentUser.userid,data.id); //check friend relationship
+            friendChat.checkRoom(data.id,socket.currentUser.userid); //check friend relationship
+
+            friendChat.readMessage(data.id,socket.currentUser.userid);//set unread message to false
+
             socket.join(room);
+
+            //todo  多次join room 有待优化
+
             if(loginedUser[data.id]){
                 loginedUser[data.id].forEach(function(ele){
                     io.sockets.socket(ele).join(room); //friends' socket join the chat room
                 })
             }
+
             if(loginedUser[socket.currentUser.userid]){
                 loginedUser[socket.currentUser.userid].forEach(function(ele){
                     io.sockets.socket(ele).join(room); //self sockets join the chat room
                 });
             }
 
-            friendChatRecord.recordCount(room,getRecordCountCb(socket,room));
+            var firstCB = function(socket){
+                return function(records){
+                    socket.emit('first5message',records);
+                }
+            }
+
+            friendChatRecord.firt5Message(room,firstCB(socket));//聊天默认显示最近5条聊天记录
 
         });
 
         socket.on('sendFriendMessage',function(data){
-            var room = friendChat.getFriendRoom(socket,data.friend);
-            var sendMessage = {chatRoom:room,message: data.message,from: socket.currentUser.userid,to:data.friend.id,timestamp:(new Date()).getTime()};
-            friendChatRecord.pushChatRecord(room,sendMessage,pushChatRecordCb(socket,room));
-            socket.broadcast.to(room).emit('sendFriendMessage',sendMessage);
+            var room = friendChat.getFriendRoom(socket.currentUser.userid,data.friend.id);
+            var record = {room:room,msg: data.message,fr: socket.currentUser.userid,created_at:new Date()};
+            friendChatRecord.pushChatRecord(record);
+
+            if(typeof loginedUser[data.friend.id] === "undefined"){
+                friendChat.hasUnreadMessage(socket.currentUser.userid,data.friend.id);
+            }
+
+            socket.broadcast.to(room).emit('sendFriendMessage',record);
         });
 
 
@@ -59,6 +93,18 @@ exports.socketEvent = function(io){
             friendChatRecord.getChatRecord(data.room,start,end,function(records){
                 socket.emit('sendFriendChatRecord',records);
             })
+        });
+
+        socket.on("findUserByName",function(data){
+            var cb = function(socket){
+                return function(users){
+                    users.forEach(function(fr){
+                        fr.chatRoom = friendChat.getFriendRoom(socket.currentUser.userid,fr.id);
+                    });
+                    socket.emit("usernameResult",users);
+                }
+            };
+            friendChat.getUserByName(data.username,cb(socket));
         });
 
         socket.on('disconnect',function(){
@@ -75,18 +121,12 @@ exports.socketEvent = function(io){
     });
 }
 
-
-var pushChatRecordCb = function(socket,room){
-    return function(count){
-        socket.emit('recordCount',count);
-    }
-}
-
 var getRecordCountCb = function(socket,room){
     var rt = {room:room};
     return function(recordPagination){
         socket.emit('pagination',recordPagination);
     }
 }
+
 
 

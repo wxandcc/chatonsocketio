@@ -16,16 +16,16 @@
     <div class="friends" ng-if="vm.friends">
         <div class="friend">friend lists</div>
         <div ng-repeat="friend in vm.friends">
-            <div class="friend" ng-class="{current: vm.currentChatUser.chatRoom == friend.chatRoom,newMsg: friend.newMsgArrv }" ng-click="vm.chatWithFriend(friend)">{{friend.username}}</div>
+            <div class="friend" ng-class="{current: vm.currentChatUser.chatRoom == friend.chatRoom,newMsg: friend.newMsgArrv }" ng-click="vm.chatWithFriend(friend)">{{friend.username}}-{{friend.id}}</div>
         </div>
     </div>
     <div  ng-if="vm.currentChatUser.id">
         <div class="chat">
             <div>I'm chatting with {{vm.currentChatUser.username}}</div>
             <div class="messageBox">
-                <div class="radus" ng-class="{me: msg.from == vm.formModel.userid,other:msg.from != vm.formModel.userid}" ng-repeat="msg in vm.userMesage[vm.currentChatUser.chatRoom] track by $index">
-                    {{vm.frindMap[msg.from].username}}: {{msg.timestamp|date:"yyyy-MM-dd hh:mm:ss"}}
-                    <p>{{msg.message}}</p>
+                <div class="radus" ng-class="{me: msg.fr == vm.formModel.userid,other:msg.fr != vm.formModel.userid}" ng-repeat="msg in vm.userMesage[vm.currentChatUser.chatRoom] track by $index">
+                    {{vm.frindMap[msg.fr].username}}: {{msg.created_at|date:"yyyy-MM-dd hh:mm:ss"}}
+                    <p>{{msg.msg}}</p>
                 </div>
             </div>
             <div>
@@ -40,6 +40,17 @@
             </div>
         </div>
 
+    </div>
+
+
+    <div ng-controller="chatFindUserCtrl as findUser">
+        <div>
+            <input ng-model="findUser.formModel.username"/>
+            <input type="button" value="search" ng-click="findUser.findUser();"/>
+        </div>
+        <div ng-repeat=" user in findUser.filterUser">
+            <span ng-click="vm.addFriend(user) || vm.chatWithFriend(user);">{{user.username}}--{{user.id}}</span>
+        </div>
     </div>
 </div>
 </body>

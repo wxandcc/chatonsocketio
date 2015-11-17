@@ -48,6 +48,15 @@ angular.module('chat',[
     vm.messagePager={};//record pagination
     vm.frindMap = {}; //frind id=>name map
 
+    vm.addFriend = function(friend){
+        if(typeof vm.userMesage[friend.chatRoom] === "undefined"){
+            vm.frindMap[friend.id] = friend;
+            vm.userMesage[friend.chatRoom] = [];
+            vm.friends.push(friend);
+        }
+        return false;
+    }
+
     function login(){
         if(!vm.formModel.userid) return;
         socket.emit('getFriends',{ userid : vm.formModel.userid});
@@ -56,6 +65,7 @@ angular.module('chat',[
             id: vm.formModel.userid,
             username: "me"
         }
+        socket.emit('getChatRooms',{userid: vm.formModel.userid});
     }
     socket.on('getFriends',function(data){
         vm.friends = data;
@@ -75,27 +85,26 @@ angular.module('chat',[
     vm.send = function(user){
         if(vm.formModel.gotosend){
             socket.emit('sendFriendMessage',{friend:user,message:vm.formModel.gotosend});
+            console.log(user);
             vm.userMesage[user.chatRoom].push(
                 {
-                    from:vm.formModel.userid,
-                    message: vm.formModel.gotosend,
-                    timestamp: (new Date()).getTime()
+                    fr:vm.formModel.userid,
+                    msg: vm.formModel.gotosend,
+                    created_at: (new Date()).getTime()
                 }
             );
         }
     }
 
     socket.on('sendFriendMessage',function(data){
-        vm.userMesage[data.chatRoom].push(data);
+        vm.userMesage[data.room].push(data);
         angular.forEach(vm.friends,function(ele){
-            if(ele.chatRoom == data.chatRoom){
+            if(ele.room == data.room){
                 ele.newMsgArrv = true;
             }
         });
     });
-    socket.on('recordCount',function(data){
-        console.log('recordCount',data);
-    });
+
     socket.on('pagination',function(pager){
         if(typeof vm.messagePager[pager.room] === "undefined") vm.messagePager[pager.room] = pagination.getPagination(pager,10);
     });
@@ -120,4 +129,38 @@ angular.module('chat',[
             }
         });
 
-}]);
+        socket.on("chatRooms",function(data){
+            if(data){
+                angular.forEach(data,function(ele){
+                    if(typeof vm.frindMap[ele.fr] === "undefined"){
+                        ele.chatRoom = ele.room;
+                        vm.friends.push(ele);
+                        vm.frindMap[ele.fr] = ele;
+                        vm.userMesage[ele.room] = [];
+                    }
+                });
+            };
+            console.log(vm.friends);
+        });
+
+        socket.on("first5message",function(data){
+            if(data.length > 0 ) {
+                var room = data[0].room;
+                vm.userMesage[room] = data.reverse();
+            }
+        })
+
+}])
+    .controller("chatFindUserCtrl",['grSocket',function(socket){
+        var vm = this;
+        vm.formModel = {};
+        vm.formModel.username = ''
+        vm.findUser = function(){
+            if(vm.formModel.username){
+                socket.emit("findUserByName",{username: vm.formModel.username});
+            }
+        };
+        socket.on("usernameResult",function(data){
+            vm.filterUser = data;
+        })
+    }]);
