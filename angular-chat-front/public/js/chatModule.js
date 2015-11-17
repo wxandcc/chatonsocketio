@@ -9,6 +9,7 @@ angular.module('chat',[
         return socketFactory();
 }).service('pagination',function(){
     var pagination = function(pager,pagesize){
+        this.fromid = pager.startid;
         this.totalMessage = pager.total;
         this.total = 0;
         this.preview = 0;
@@ -105,31 +106,26 @@ angular.module('chat',[
         });
     });
 
-    socket.on('pagination',function(pager){
-        if(typeof vm.messagePager[pager.room] === "undefined") vm.messagePager[pager.room] = pagination.getPagination(pager,10);
-    });
     vm.recordNextPage = function(room){
         var pagination = vm.messagePager[room];
         var data = {
             room: room,
             page: pagination.nextPage(),
             pagesize : pagination.pagesize,
-            total: pagination.totalMessage
+            total: pagination.totalMessage,
+            startid: pagination.fromid
         };
         socket.emit('friendChatRecord',data);
-            console.log(data);
-        }
-        socket.on('sendFriendChatRecord',function(data){
+    };
+     socket.on('sendFriendChatRecord',function(data){
             if(data.length>0){
-                data.reverse();
+                var room = data[0].room;
                 angular.forEach(data,function(ele){
-                    var message = JSON.parse(ele);
-                    vm.userMesage[message.chatRoom].unshift(message);
+                    vm.userMesage[room].unshift(ele);
                 });
             }
         });
-
-        socket.on("chatRooms",function(data){
+    socket.on("chatRooms",function(data){
             if(data){
                 angular.forEach(data,function(ele){
                     if(typeof vm.frindMap[ele.fr] === "undefined"){
@@ -140,16 +136,19 @@ angular.module('chat',[
                     }
                 });
             };
-            console.log(vm.friends);
-        });
-
-        socket.on("first5message",function(data){
+    });
+    socket.on("first5message",function(data){
             if(data.length > 0 ) {
                 var room = data[0].room;
                 vm.userMesage[room] = data.reverse();
-            }
-        })
+                var maxrecordid = data[0].id;
+                socket.emit("getPagenation",{room:room,id:maxrecordid});
+            };
+    });
 
+    socket.on('pagination',function(pager){
+        if(typeof vm.messagePager[pager.room] === "undefined") vm.messagePager[pager.room] = pagination.getPagination(pager,10);
+    });
 }])
     .controller("chatFindUserCtrl",['grSocket',function(socket){
         var vm = this;

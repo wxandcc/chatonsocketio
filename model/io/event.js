@@ -87,10 +87,11 @@ exports.socketEvent = function(io){
 
 
         socket.on('friendChatRecord',function(data){
-            var end = data.total-1- (data.page-1) * data.pagesize;
-            var start =  data.total -  data.page * data.pagesize;
-            if(start<0) start=0;
-            friendChatRecord.getChatRecord(data.room,start,end,function(records){
+            var start = (data.page-1) * data.pagesize;
+            var offset = data.pagesize;
+            var fromid = data.startid;
+            if(start < 0) start = 0;
+            friendChatRecord.getChatRecord(data.room,start,offset,fromid,function(records){
                 socket.emit('sendFriendChatRecord',records);
             })
         });
@@ -107,6 +108,16 @@ exports.socketEvent = function(io){
             friendChat.getUserByName(data.username,cb(socket));
         });
 
+        socket.on("getPagenation",function(data){
+            var cb = function(socket){
+                return function(total){
+                    socket.emit('pagination',total);
+                }
+            };
+            friendChatRecord.getRecordCount(data.room,data.id,cb(socket));
+        });
+
+
         socket.on('disconnect',function(){
             var socketindex;
             if(!socket.currentUser) return;
@@ -121,12 +132,6 @@ exports.socketEvent = function(io){
     });
 }
 
-var getRecordCountCb = function(socket,room){
-    var rt = {room:room};
-    return function(recordPagination){
-        socket.emit('pagination',recordPagination);
-    }
-}
 
 
 

@@ -14,8 +14,28 @@ exports.pushChatRecord = function(record,cb){
 
 
 exports.firt5Message = function(room,cb){
-    conn.query("select * from gr_chat_private_records where room=? order by created_at desc limit 5 ",room,function(error,records){
+    conn.query("select * from gr_chat_private_records where room=? order by id desc limit 5 ",room,function(error,records){
         if(error) throw error;
         cb(records);
     })
 }
+
+
+exports.getRecordCount = function(room,id,cb){
+    conn.query("select count(*) as count from gr_chat_private_records where ? and id < ? ",[{room:room},id],function(error,result){
+        if(error) throw error;
+        var rt = {
+            startid:id,
+            total:result[0].count,
+            room:room
+        };
+        cb(rt);
+    });
+};
+exports.getChatRecord = function(room,start,offset,startid,cb){
+    conn.query("select * from gr_chat_private_records where ? and id < ? order by id desc limit ? , ?",[{room:room},startid,start,offset],
+        function(error,result){
+        if(error) throw error;
+        cb(result);
+    });
+};
