@@ -4,48 +4,53 @@
 
 
 var user = require('../orm/friends');
-var friendChat = require('./friendChat');
+var friendChat = require('./../orm/friendChat');
 var friendChatRecord = require('../orm/record.js');
 var loginedUser = {};
 
+/**
+ *  all client events format with client:{action}:{desc}
+ *  all server client format with server:{action}:{desc}
+ */
+
 exports.socketEvent = function(io){
     io.on('connection', function (socket) {
-        socket.on('getFriends',function(data){
-            user.friends(data.userid,function(error,friends){
+        socket.on('client:get:friends',function(data){
+            user.friends(data.uid,function(error,friends){
                 if(error) throw error;
-
                 friends.forEach(function(fr){
-                    fr.chatRoom = friendChat.getFriendRoom(data.userid,fr.id);
+                    fr.room = friendChat.getFriendRoom(data.uid,fr.id);
                 });
-                socket.emit('getFriends',friends);
+                socket.emit('server:send:friends',friends);
             });
-            socket.currentUser = data;
-            if(loginedUser[data.userid]){
-                loginedUser[data.userid].push(socket.id);
+            socket.cUser = data; //current user
+
+            if(loginedUser[data.uid]){
+                loginedUser[data.uid].push(socket.id);
             }else{
-                loginedUser[data.userid] = [socket.id];
+                loginedUser[data.uid] = [socket.id];
             }
         });
 
-        socket.on('getChatRooms',function(data){
+        socket.on('client:get:rooms',function(data){
             var cb = function(socket){
                 return function(chatRooms){
                     chatRooms.forEach(function(chat){
                         chat.room = friendChat.getFriendRoom(chat.fr,chat.tid);
                     });
-                    socket.emit("chatRooms",chatRooms);
+                    socket.emit("server:send:rooms",chatRooms);
                 }
             }
-            friendChat.userChatRooms(data.userid,cb(socket));
+            friendChat.userChatRooms(data.uid,cb(socket));
         });
 
-        socket.on('chatWithFriend',function(data){
+        socket.on('client:chat:friend',function(data){
+            console.log(socket.cUser);
+            var room = friendChat.getFriendRoom(socket.cUser.uid,data.id);
+            friendChat.checkRoom(socket.cUser.uid,data.id); //check friend relationship
+            friendChat.checkRoom(data.id,socket.cUser.uid); //check friend relationship
 
-            var room = friendChat.getFriendRoom(socket.currentUser.userid,data.id);
-            friendChat.checkRoom(socket.currentUser.userid,data.id); //check friend relationship
-            friendChat.checkRoom(data.id,socket.currentUser.userid); //check friend relationship
-
-            friendChat.readMessage(data.id,socket.currentUser.userid);//set unread message to false
+            friendChat.readMessage(data.id,socket.cUser.uid);//set unread message to false
 
             socket.join(room);
 
@@ -57,15 +62,15 @@ exports.socketEvent = function(io){
                 })
             }
 
-            if(loginedUser[socket.currentUser.userid]){
-                loginedUser[socket.currentUser.userid].forEach(function(ele){
+            if(loginedUser[socket.cUser.uid]){
+                loginedUser[socket.cUser.uid].forEach(function(ele){
                     io.sockets.socket(ele).join(room); //self sockets join the chat room
                 });
             }
 
             var firstCB = function(socket){
                 return function(records){
-                    socket.emit('first5message',records);
+                    socket.emit('server:first:5:message',records);
                 }
             }
 
@@ -73,55 +78,55 @@ exports.socketEvent = function(io){
 
         });
 
-        socket.on('sendFriendMessage',function(data){
-            var room = friendChat.getFriendRoom(socket.currentUser.userid,data.friend.id);
-            var record = {room:room,msg: data.message,fr: socket.currentUser.userid,created_at:new Date()};
+        socket.on('client:friend:msg',function(data){
+            var room = friendChat.getFriendRoom(socket.cUser.uid,data.friend.id);
+            var record = {room:room,msg: data.message,fr: socket.cUser.uid,created_at:new Date()};
             friendChatRecord.pushChatRecord(record);
 
             if(typeof loginedUser[data.friend.id] === "undefined"){
-                friendChat.hasUnreadMessage(socket.currentUser.userid,data.friend.id);
+                friendChat.hasUnreadMessage(socket.cUser.uid,data.friend.id);
             }
 
-            socket.broadcast.to(room).emit('sendFriendMessage',record);
+            socket.broadcast.to(room).emit('server:friend:msg',record);
         });
 
 
-        socket.on('friendChatRecord',function(data){
+        socket.on('client:get:friend:record',function(data){
             var start = (data.page-1) * data.pagesize;
             var offset = data.pagesize;
             var fromid = data.startid;
             if(start < 0) start = 0;
             friendChatRecord.getChatRecord(data.room,start,offset,fromid,function(records){
-                socket.emit('sendFriendChatRecord',records);
+                socket.emit('server:send:friend:record',records);
             })
         });
 
-        socket.on("findUserByName",function(data){
+        socket.on("client:find:username",function(data){
             var cb = function(socket){
                 return function(users){
                     users.forEach(function(fr){
-                        fr.chatRoom = friendChat.getFriendRoom(socket.currentUser.userid,fr.id);
+                        fr.room = friendChat.getFriendRoom(socket.cUser.uid,fr.id);
                     });
-                    socket.emit("usernameResult",users);
+                    socket.emit("server:find:username:result",users);
                 }
             };
-            friendChat.getUserByName(data.username,cb(socket));
+            friendChat.getUserByName(data.username,socket.cUser.uid,cb(socket));
         });
 
-        socket.on("getFrindById",function(data){
+        socket.on("client:get:new:friend",function(data){
             var cb = function(socket){
                 return function(friend){
-                    friend.chatRoom = friendChat.getFriendRoom(socket.currentUser.userid,friend.id);
-                    socket.emit("newFriendArr",friend);
+                    friend.room = friendChat.getFriendRoom(socket.cUser.uid,friend.id);
+                    socket.emit("server:send:new:friend",friend);
                 }
             };
             friendChat.getFriendById(data,cb(socket));
         });
 
-        socket.on("getPagenation",function(data){
+        socket.on("client:get:pagination",function(data){
             var cb = function(socket){
                 return function(total){
-                    socket.emit('pagination',total);
+                    socket.emit('server:send:pagination',total);
                 }
             };
             friendChatRecord.getRecordCount(data.room,data.id,cb(socket));
@@ -130,8 +135,8 @@ exports.socketEvent = function(io){
 
         socket.on('disconnect',function(){
             var socketindex;
-            if(!socket.currentUser) return;
-            var currentUserSockets = loginedUser[socket.currentUser.userid];
+            if(!socket.cUser) return;
+            var currentUserSockets = loginedUser[socket.cUser.uid];
             for(i in currentUserSockets ){
                 if(currentUserSockets[i] === socket.id){
                     socketindex = i;

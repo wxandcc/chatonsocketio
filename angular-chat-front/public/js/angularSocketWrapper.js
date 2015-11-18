@@ -5,7 +5,6 @@
 angular.module( 'angularSocket',[])
     .factory('grSocket', function ($rootScope) {
     var socket = io.connect();
-        console.log(io,socket);
     return {
         on: function (eventName, callback) {
             socket.on(eventName, function () {

@@ -3,11 +3,15 @@
  */
 
 var mysql = require("./connection");
-exports.friends = function(uid,callback){
-    mysql.mysqlConn.query('select user.id,user.username from gr_users as user inner join gr_user_follow as follow' +
-        ' on follow.fid = user.id where follow.uid='+parseInt(uid, 10),
-            function(err,rows){
-                if(err) throw  err;
-                callback(null,rows);
-            });
-};
+module.exports ={
+    //call back with array of friends {id,username,avatar_file}
+    friends: function(uid,callback){
+                mysql.mysqlConn.query('select user.id,user.username from gr_users as user inner join gr_user_follow ' +
+                    'as follow on follow.fid = user.id where follow.uid='+parseInt(uid, 10),
+                    function(err,friends){
+                        if(err) throw  err;
+                        if(typeof callback === "function")  callback(null,friends);
+                    }
+                );
+            }
+    };

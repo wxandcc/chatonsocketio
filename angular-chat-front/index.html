@@ -10,33 +10,33 @@
 
 <div ng-controller="chatCtrl as vm">
     <div ng-show="vm.formModel.needLogin">
-        <input ng-model="vm.formModel.userid"/>
+        <input ng-model="vm.formModel.uid"/>
         <input type="button" value="login" ng-click="vm.login();"/>
     </div>
     <div class="friends" ng-if="vm.friends">
         <div class="friend">friend lists</div>
-        <div ng-repeat="friend in vm.friends">
-            <div class="friend" ng-class="{current: vm.currentChatUser.chatRoom == friend.chatRoom,newMsg: friend.newMsgArrv }" ng-click="vm.chatWithFriend(friend)">{{friend.username}}-{{friend.id}}</div>
+        <div ng-repeat="friend in vm.friends track by $index">
+            <div class="friend" ng-class="{current: vm.cFriend.room == friend.room,newMsg: friend.newMsgArrv }" ng-click="vm.chatWithFriend(friend)">{{friend.username}}-{{friend.id}}</div>
         </div>
     </div>
-    <div  ng-if="vm.currentChatUser.id">
+    <div  ng-if="vm.cFriend.id">
         <div class="chat">
-            <div>I'm chatting with {{vm.currentChatUser.username}}</div>
+            <div>I'm chatting with {{vm.cFriend.username}}</div>
             <div class="messageBox">
-                <div class="radus" ng-class="{me: msg.fr == vm.formModel.userid,other:msg.fr != vm.formModel.userid}" ng-repeat="msg in vm.userMesage[vm.currentChatUser.chatRoom] track by $index">
-                    {{vm.frindMap[msg.fr].username}}: {{msg.created_at|date:"yyyy-MM-dd hh:mm:ss"}}
+                <div class="radus" ng-class="{me: msg.fr == vm.formModel.uid,other:msg.fr != vm.formModel.uid}" ng-repeat="msg in vm.userMesage[vm.cFriend.room] track by $index">
+                    {{ vm.friends[msg.fr].username || "myself"}}: {{msg.created_at|date:"yyyy-MM-dd hh:mm:ss"}}
                     <p>{{msg.msg}}</p>
                 </div>
             </div>
             <div>
-                <span ng-click="vm.recordNextPage(vm.currentChatUser.chatRoom)" ng-if="vm.messagePager[vm.currentChatUser.chatRoom].hasNext()">
-                    next-{{vm.messagePager[vm.currentChatUser.chatRoom].next}}
+                <span ng-click="vm.recordNextPage(vm.cFriend.room)" ng-if="vm.messagePager[vm.cFriend.room].hasNext()">
+                    next-{{vm.messagePager[vm.cFriend.room].next}}
                 </span>
             </div>
 
             <div class="messageinput">
                 <input ng-model="vm.formModel.gotosend" />
-                <input type="button" ng-click="vm.send(vm.currentChatUser);" value="send"/>
+                <input type="button" ng-click="vm.send(vm.cFriend);" value="send"/>
             </div>
         </div>
 

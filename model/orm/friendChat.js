@@ -2,7 +2,7 @@
  * Created by weixing on 15/11/8.
  */
 
-var conn = require("../orm/connection.js").mysqlConn;
+var conn = require("./connection.js").mysqlConn;
 
 var friendRoomPrefix = "pri_";
 
@@ -21,8 +21,8 @@ function checkRoom(uid,fuid){
     });
 };
 
-function getUserByName(username,cb){
-    conn.query("select id,username from gr_users where username like "+conn.escape("%"+username+"%"),function(error,records){
+function getUserByName(username,id,cb){
+    conn.query("select id,username from gr_users where id !="+id+" and  username like "+conn.escape("%"+username+"%"),function(error,records){
         if(error) throw error;
         cb(records);
     })
@@ -30,7 +30,7 @@ function getUserByName(username,cb){
 
 function getUserChatRooms(uid,cb){
     conn.query("select r.fr,r.tid,r.unread,user.id,user.username from gr_chat_private_rooms as r join gr_users as user" +
-        " on user.id = r.fr  where tid = ?",uid,function(error,records){
+        " on user.id = r.fr  where  ? ",{tid:uid},function(error,records){
         if(error) throw  error;
         cb(records);
     });
