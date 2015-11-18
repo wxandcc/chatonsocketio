@@ -52,10 +52,12 @@ function readMessage(fr,tid){
     conn.query("update gr_chat_private_rooms set unread = 0 where ? and ? ",[{fr:fr},{tid:tid}]);
 }
 
-exports.checkRoom = checkRoom;
-exports.getFriendRoom = getRoomname;
-exports.getUserByName = getUserByName;
-exports.userChatRooms = getUserChatRooms;
-exports.hasUnreadMessage = hasUnreadMessage;//设置未读消息
-exports.readMessage = readMessage; //设置未读消息为已读
-exports.getFriendById = getFriendById;
+module.exports = {
+     checkRoom          :  checkRoom
+    ,getFriendRoom     : getRoomname
+    ,getUserByName     : getUserByName
+    ,userChatRooms     : getUserChatRooms
+    ,hasUnreadMessage  :  hasUnreadMessage
+    ,readMessage        : readMessage
+    ,getFriendById     : getFriendById
+}
