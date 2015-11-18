@@ -94,6 +94,7 @@ angular.module('chat',[
         vm.send = function(user){
             if(vm.formModel.gotosend){
                 socket.emit('client:friend:msg',{friend:user,message:vm.formModel.gotosend});
+                if(typeof vm.userMesage[user.room] === "undefined") vm.userMesage[user.room]=[];
                 vm.userMesage[user.room].push(
                     {
                         fr:vm.formModel.uid,
