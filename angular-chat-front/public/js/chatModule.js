@@ -171,6 +171,10 @@ angular.module('chat',[
             }
         };
         socket.on("server:find:username:result",function(data){
-            vm.filterUser = data;
+            if(data.length > 0){
+                vm.filterUser = data;
+            }else{
+                alert("no matched user!");
+            }
         })
     }]);

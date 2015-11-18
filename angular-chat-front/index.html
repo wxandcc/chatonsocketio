@@ -10,11 +10,11 @@
 
 <div ng-controller="chatCtrl as vm">
     <div ng-show="vm.formModel.needLogin">
+        <div>输入用户的ID 这里是跟网站衔接预留的接口 登录在网站那边</div>
         <input ng-model="vm.formModel.uid"/>
         <input type="button" value="login" ng-click="vm.login();"/>
     </div>
     <div class="friends" ng-if="vm.friends">
-        <div class="friend">friend lists</div>
         <div ng-repeat="friend in vm.friends track by $index">
             <div class="friend" ng-class="{current: vm.cFriend.room == friend.room,newMsg: friend.newMsgArrv }" ng-click="vm.chatWithFriend(friend)">{{friend.username}}-{{friend.id}}</div>
         </div>
@@ -45,6 +45,7 @@
 
     <div ng-controller="chatFindUserCtrl as findUser">
         <div>
+            <div>输入用户的用户名，全局搜索</div>
             <input ng-model="findUser.formModel.username"/>
             <input type="button" value="search" ng-click="findUser.findUser();"/>
         </div>
