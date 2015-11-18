@@ -36,6 +36,14 @@ function getUserChatRooms(uid,cb){
     });
 }
 
+function getFriendById(data,cb){
+    conn.query("select id,username from gr_users where ? ",{id:data.uid},function(error,user){
+        if(error) throw  error;
+        cb(user[0]);
+    });
+}
+
+
 function hasUnreadMessage(fr,tid){
     conn.query("update gr_chat_private_rooms set unread = 1 where ? and ? ",[{fr:fr},{tid:tid}]);
 }
@@ -50,3 +58,4 @@ exports.getUserByName = getUserByName;
 exports.userChatRooms = getUserChatRooms;
 exports.hasUnreadMessage = hasUnreadMessage;//设置未读消息
 exports.readMessage = readMessage; //设置未读消息为已读
+exports.getFriendById = getFriendById;

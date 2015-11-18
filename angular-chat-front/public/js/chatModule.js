@@ -99,12 +99,24 @@ angular.module('chat',[
     }
 
     socket.on('sendFriendMessage',function(data){
-        vm.userMesage[data.room].push(data);
-        angular.forEach(vm.friends,function(ele){
-            if(ele.room == data.room){
-                ele.newMsgArrv = true;
-            }
-        });
+
+        if(vm.userMesage[data.room]){
+            vm.userMesage[data.room].push(data);
+            angular.forEach(vm.friends,function(ele){
+                if(ele.room == data.room){
+                    ele.newMsgArrv = true; //set new message arrive
+                }
+            });
+        }else{
+            vm.userMesage[data.room] = [data];
+            socket.emit("getFrindById",{uid:data.fr}); //获取新聊天
+            socket.on("newFriendArr",function(friend){
+                vm.friends.push(friend);
+                vm.frindMap[friend.id] = friend;
+                friend.newMsgArrv = true;
+                console.log(vm.friends);
+            });
+        }
     });
 
     vm.recordNextPage = function(room){
@@ -152,8 +164,11 @@ angular.module('chat',[
     });
     socket.on('reconnect',function(info){
         socket.emit('getFriends',{ userid : vm.formModel.userid});
-        console.log("info");
     });
+
+    socket.on('error',function(info){
+        console.log("erorr",info);
+    })
 
 }])
     .controller("chatFindUserCtrl",['grSocket',function(socket){

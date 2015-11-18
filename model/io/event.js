@@ -108,6 +108,16 @@ exports.socketEvent = function(io){
             friendChat.getUserByName(data.username,cb(socket));
         });
 
+        socket.on("getFrindById",function(data){
+            var cb = function(socket){
+                return function(friend){
+                    friend.chatRoom = friendChat.getFriendRoom(socket.currentUser.userid,friend.id);
+                    socket.emit("newFriendArr",friend);
+                }
+            };
+            friendChat.getFriendById(data,cb(socket));
+        });
+
         socket.on("getPagenation",function(data){
             var cb = function(socket){
                 return function(total){
