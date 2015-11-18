@@ -88,7 +88,10 @@ angular.module('chat',[
 
         vm.chatWithFriend = function(friend){
             if(vm.cFriend.room !== friend.room){
-                socket.emit('client:chat:friend',friend);
+                if(angular.isArray(vm.userMesage[friend.room]) && vm.userMesage[friend.room].length == 0 ){
+                    socket.emit('client:chat:friend',friend);
+                }
+                console.log(vm.userMesage[friend.room]);
                 vm.cFriend = friend;
             }
             friend.newMsgArrv = false;
