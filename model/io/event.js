@@ -110,6 +110,12 @@ exports.socketEvent = function(io){
                     socket.emit("server:find:username:result",users);
                 }
             };
+            //todo 禁止用户未登录就搜索用户
+            if(typeof socket.cUser === "undefined" ){
+                cb(socket)([]);//fix error
+                return;
+            }
+            
             friendChat.getUserByName(data.username,socket.cUser.uid,cb(socket));
         });
 
