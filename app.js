@@ -9,6 +9,12 @@ var io = require('socket.io');
 var io = io.listen(server);
 server.listen(8080);
 
+
+io.set('authorization',function(handshake,accept){
+    console.log(handshake.query);
+    accept(null,true);
+});
+
 socketEvent.socketEvent(io);
 
 app.use(express.static('angular-chat-front'));

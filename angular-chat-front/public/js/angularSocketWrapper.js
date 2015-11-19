@@ -4,7 +4,7 @@
 
 angular.module( 'angularSocket',[])
     .factory('grSocket', function ($rootScope) {
-    var socket = io.connect();
+    var socket = io.connect('',{query:"name=weixing"});
     return {
         on: function (eventName, callback) {
             socket.on(eventName, function () {

@@ -74,7 +74,6 @@ angular.module('chat',[
         function login(){
             if(!vm.formModel.uid) return;
             var uid = $filter('trimFilter')(vm.formModel.uid);
-            console.log(uid,angular.isNumber(uid));
             if($filter('numberLike')(uid)){
                 socket.emit('client:get:friends',{ uid : uid});
                 vm.formModel.needLogin = false;
@@ -182,7 +181,11 @@ angular.module('chat',[
             if(typeof vm.messagePager[pager.room] === "undefined") vm.messagePager[pager.room] = pagination.getPagination(pager,10);
         });
         socket.on('reconnect',function(info){
-            socket.emit('client:get:friends',{ uid : vm.formModel.uid});
+            if(!vm.formModel.uid) return;
+            var uid = $filter('trimFilter')(vm.formModel.uid);
+            if($filter('numberLike')(uid)) {
+                socket.emit('client:get:friends', {uid: vm.formModel.uid});
+            };
         });
 
 }])
