@@ -115,7 +115,7 @@ exports.socketEvent = function(io){
                 cb(socket)([]);//fix error
                 return;
             }
-            
+
             friendChat.getUserByName(data.username,socket.cUser.uid,cb(socket));
         });
 

@@ -5,9 +5,21 @@
 angular.module('chat',[
     'btford.socket-io',
     'angularSocket'
-]).factory('btford-socket', function (socketFactory) {
-        return socketFactory();
-})
+    ]).factory('btford-socket', function (socketFactory) {
+            return socketFactory();
+    }).filter('trimFilter',function(){
+        /**
+         *  trim spaces
+         */
+        return function(string){
+            return  typeof string === "string" ? string.replace(/(^\s+)|(\s+$)/g, "") : '';
+        }
+    })
+    .filter('numberLike',function(){
+        return function(testvalue){
+            return !/\D+/.test(testvalue);
+        }
+    })
     .service('pagination',function(){
     var pagination = function(pager,pagesize){
         this.fromid = pager.startid;
@@ -40,7 +52,7 @@ angular.module('chat',[
         return new pagination(pager,pagesize);
     }
 })
-    .controller('chatCtrl',['grSocket','pagination',function(socket,pagination){
+    .controller('chatCtrl',['grSocket','pagination','$filter',function(socket,pagination,$filter){
         var vm = this;
         vm.formModel = {};
         vm.formModel.needLogin = true;
@@ -61,8 +73,15 @@ angular.module('chat',[
 
         function login(){
             if(!vm.formModel.uid) return;
-            socket.emit('client:get:friends',{ uid : vm.formModel.uid});
-            vm.formModel.needLogin = false;
+            var uid = $filter('trimFilter')(vm.formModel.uid);
+            console.log(uid,angular.isNumber(uid));
+            if($filter('numberLike')(uid)){
+                socket.emit('client:get:friends',{ uid : uid});
+                vm.formModel.needLogin = false;
+            }else{
+                alert("请输入id，例如1,2,11等")
+            }
+
         };
         socket.on('server:send:friends',function(data){
             if(data){
