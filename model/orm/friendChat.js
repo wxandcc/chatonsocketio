@@ -2,7 +2,9 @@
  * Created by weixing on 15/11/8.
  */
 
-var conn = require("./connection.js").mysqlConn;
+//var conn = require("./connection.js").mysqlConn;
+var conn = require("./connectPool.js").mysqlConnPool;
+
 
 var friendRoomPrefix = "pri_";
 
@@ -16,7 +18,7 @@ function checkRoom(uid,fuid){
         if(result[0]){
             return;
         }else{
-            conn.query("insert into gr_chat_private_rooms set ? ",{fr:uid,tid:fuid}); //·ÇºÃÓÑÁÄÌì¹ØÏµ
+            conn.query("insert into gr_chat_private_rooms set ? ",{fr:uid,tid:fuid}); //ï¿½Çºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ïµ
         }
     });
 };

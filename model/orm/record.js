@@ -3,7 +3,9 @@
  */
 
 
-var conn = require('./connection').mysqlConn;
+//var conn = require('./connection').mysqlConn;
+
+var conn = require("./connectPool.js").mysqlConnPool;
 
 exports.pushChatRecord = function(record,cb){
     conn.query("insert into gr_chat_private_records set ?", record,function(error,result){
