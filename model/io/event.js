@@ -184,7 +184,30 @@ exports.socketEvent = function(io){
                 socket.emit("server:team:teamMember",users);
             };
             teamChat.getTeamsMembers(team,teamMemberCb);
+
+            teamChat.first5TeamMessage(team.teamRoom,function(message){
+                socket.emit("server:team:first:5:message",message);
+            });//聊天默认显示最近5条聊天记录
+
         });
+
+        socket.on("client:team:get:pagination",function(data){
+            var cb = function(total){
+                    socket.emit('server:team:send:pagination',total);
+                };
+            teamChat.getTeamRecordCount(data.room,data.id,cb);
+        });
+
+        socket.on('client:team:get:friend:record',function(data){
+            var start = (data.page-1) * data.pagesize;
+            var offset = data.pagesize;
+            var fromid = data.startid;
+            if(start < 0) start = 0;
+            teamChat.getTeamChatRecord(data.room,start,offset,fromid,function(records){
+                socket.emit('server:team:send:friend:record',records);
+            })
+        });
+
 
         socket.on('disconnect',function(){
             var socketindex;

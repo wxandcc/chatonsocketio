@@ -61,7 +61,11 @@
                     <p>{{msg.msg}}</p>
             </div>
             </div>
-
+            <div>
+                <span ng-click="vm.teamRecordNextPage(vm.cTeam.teamRoom);" ng-if="vm.messagePager[vm.cTeam.teamRoom].hasNext()">
+                    next-{{vm.messagePager[vm.cTeam.teamRoom].next}}
+                </span>
+            </div>
             <div class="messageinput">
                 <input ng-model="vm.formModel.gotosend" />
                 <input type="button" ng-click="vm.sendTeam(vm.cTeam);" value="send"/>

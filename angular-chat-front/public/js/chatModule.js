@@ -222,9 +222,45 @@ angular.module('chat',[
         });
 
         socket.on("server:team:teamMember",function(users){
-            console.log(users);
             vm.cTeam.teamMember = users;
         });
+
+
+        socket.on("server:team:first:5:message",function(data){
+            if(data.length > 0 ) {
+                var room = data[0].room;
+                vm.userMesage[room] = data.reverse();
+                var maxrecordid = data[0].id;
+                socket.emit("client:team:get:pagination",{room:room,id:maxrecordid});
+            };
+        });
+
+        socket.on('server:team:send:pagination',function(pager){
+            if(typeof vm.messagePager[pager.room] === "undefined") vm.messagePager[pager.room] = pagination.getPagination(pager,10);
+            console.log( vm.messagePager[pager.room]);
+        });
+
+
+        vm.teamRecordNextPage = function(room){
+            var pagination = vm.messagePager[room];
+            var data = {
+                room: room,
+                page: pagination.nextPage(),
+                pagesize : pagination.pagesize,
+                total: pagination.totalMessage,
+                startid: pagination.fromid
+            };
+            socket.emit('client:team:get:friend:record',data);
+        };
+        socket.on('server:team:send:friend:record',function(data){
+            if(data.length>0){
+                var room = data[0].room;
+                angular.forEach(data,function(ele){
+                    vm.userMesage[room].unshift(ele);
+                });
+            }
+        });
+
 
         socket.on('reconnect',function(info){
             if(!vm.formModel.uid) return;

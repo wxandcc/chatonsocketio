@@ -39,7 +39,7 @@ module.exports = {
         pool.query("select count(*) as count from gr_chat_team_records where ? and id < ? ",[{room:room},id],function(error,result){
             if(error) throw error;
             var rt = {
-                startid:id,
+                    startid:id,
                     total:result[0].count,
                     room:room
             };
