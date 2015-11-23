@@ -62,6 +62,8 @@ angular.module('chat',[
         vm.cFriend = {};// 当前聊天的朋友
         vm.messagePager={};//record pagination
         vm.friends = {};//all chat friend id=>obj
+        vm.teams = {};//群聊模块
+        vm.cTeam = {};//当前team room
 
         vm.addFriend = function(friend){
             if(typeof vm.userMesage[friend.room] === "undefined"){
@@ -76,7 +78,9 @@ angular.module('chat',[
             var uid = $filter('trimFilter')(vm.formModel.uid);
             if($filter('numberLike')(uid)){
                 socket.emit('client:get:friends',{ uid : uid});
+                socket.emit("client:team:rooms",{uid:uid});
                 vm.formModel.needLogin = false;
+
             }else{
                 alert("请输入id，例如1,2,11等")
             }
@@ -105,6 +109,7 @@ angular.module('chat',[
         });
 
         vm.chatWithFriend = function(friend){
+            vm.cTeam = {};//私聊和群聊互斥
             if(vm.cFriend.room !== friend.room){
                 if(angular.isArray(vm.userMesage[friend.room]) && vm.userMesage[friend.room].length == 0 ){
                     socket.emit('client:chat:friend',friend);
@@ -180,6 +185,47 @@ angular.module('chat',[
         socket.on('server:send:pagination',function(pager){
             if(typeof vm.messagePager[pager.room] === "undefined") vm.messagePager[pager.room] = pagination.getPagination(pager,10);
         });
+        /**
+         *  以上为私聊部分
+         *  群聊事件如下
+         */
+
+        socket.on("server:team:rooms",function(data){
+            vm.teams = data;
+        });
+
+        vm.teamChat = function(team){
+            vm.cFriend = {};
+            vm.cTeam = team;
+            socket.emit("client:team:chat",team);
+        };
+
+        vm.sendTeam = function(team){
+            if(!vm.formModel.gotosend) return;
+            if(typeof vm.userMesage[team.teamRoom] === "undefined") vm.userMesage[team.teamRoom]=[];
+            vm.userMesage[team.teamRoom].push(
+                {
+                    fr:vm.formModel.uid,
+                    msg: vm.formModel.gotosend,
+                    created_at: (new Date()).getTime()
+                }
+            );
+            socket.emit("client:team:msg",{
+                team:team,
+                message: vm.formModel.gotosend
+            });
+        };
+
+        socket.on("server:team:msg",function(data){
+            if(typeof vm.userMesage[data.room] === "undefined") vm.userMesage[data.room]=[];
+            vm.userMesage[data.room].push(data);
+        });
+
+        socket.on("server:team:teamMember",function(users){
+            console.log(users);
+            vm.cTeam.teamMember = users;
+        });
+
         socket.on('reconnect',function(info){
             if(!vm.formModel.uid) return;
             var uid = $filter('trimFilter')(vm.formModel.uid);

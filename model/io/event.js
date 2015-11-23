@@ -5,6 +5,7 @@
 
 var user = require('../orm/friends');
 var friendChat = require('./../orm/friendChat');
+var teamChat = require("./../orm/teamChat.js");
 var friendChatRecord = require('../orm/record.js');
 var loginedUser = {};
 
@@ -33,6 +34,7 @@ exports.socketEvent = function(io){
         });
 
         socket.on('client:get:rooms',function(data){
+            //获取聊天的房间信息
             var cb = function(socket){
                 return function(chatRooms){
                     chatRooms.forEach(function(chat){
@@ -138,6 +140,51 @@ exports.socketEvent = function(io){
             friendChatRecord.getRecordCount(data.room,data.id,cb(socket));
         });
 
+        /**
+         * 以上为私聊部分
+         */
+
+        socket.on("client:team:rooms",function(userInfo){
+            var cb = function(teamRooms){
+                if(teamRooms){
+                    teamRooms.forEach(function(ele){
+                        ele.teamRoom = teamChat.teamRoom(ele.team_id);
+                    });
+                    socket.emit("server:team:rooms",teamRooms);
+                }
+            };
+            teamChat.getTeams(userInfo.uid,cb);
+        });
+
+        socket.on("client:team:msg",function(data){
+            var room = data.team.teamRoom;
+            var record = {room:room,msg: data.message,fr: socket.cUser.uid,created_at:new Date()};
+            teamChat.pushTeamChatRecord(record);
+            socket.broadcast.to(room).emit('server:team:msg',record);
+        });
+
+        socket.on("client:team:chat",function(team){
+            //todo 优化所有的队员的client加入team.teamRoom
+
+            var teamMemberCb = function(users,team){
+                if(loginedUser[socket.cUser.uid]){
+                    loginedUser[socket.cUser.uid].push(socket.id);
+                }else{
+                    loginedUser[socket.cUser.uid] = [socket.id];
+                }
+                if(users){
+                    users.forEach(function(user){
+                        if(loginedUser[user.id]){
+                            loginedUser[user.id].forEach(function(ele){
+                                io.sockets.socket(ele).join(team.teamRoom); //self sockets join the chat room
+                            });
+                        }
+                    })
+                };
+                socket.emit("server:team:teamMember",users);
+            };
+            teamChat.getTeamsMembers(team,teamMemberCb);
+        });
 
         socket.on('disconnect',function(){
             var socketindex;

@@ -8,8 +8,12 @@ var conn = require("./connectPool.js").mysqlConnPool;
 
 var friendRoomPrefix = "pri_";
 
+var md5hashRoom = require("./roomName.js").md5hashRoom;
+
 function getRoomname(uid,fuid){
-    return friendRoomPrefix+[uid,fuid].sort(function(a,b){ return a > b ? 1 : 0;}).join('_');
+    var roomName = friendRoomPrefix+[uid,fuid].sort(function(a,b){ return a > b ? 1 : 0;}).join('_');
+    //return roomName;
+    return md5hashRoom(roomName);
 };
 
 function checkRoom(uid,fuid){
@@ -18,7 +22,7 @@ function checkRoom(uid,fuid){
         if(result[0]){
             return;
         }else{
-            conn.query("insert into gr_chat_private_rooms set ? ",{fr:uid,tid:fuid}); //�Ǻ��������ϵ
+            conn.query("insert into gr_chat_private_rooms set ? ",{fr:uid,tid:fuid}); //�Ǻ���������?
         }
     });
 };

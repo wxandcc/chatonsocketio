@@ -55,3 +55,9 @@
     height: 100%;
 }
 
+.inbox{
+    padding-top: 5px;
+    padding-bottom: 20px;
+    color: red;
+}
+

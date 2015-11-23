@@ -14,9 +14,16 @@
         <input ng-model="vm.formModel.uid"/>
         <input type="button" value="login" ng-click="vm.login();"/>
     </div>
-    <div class="friends" ng-if="vm.friends">
+    <div class="friends" ng-if="!vm.formModel.needLogin">
+        <div class="inbox">friends chats</div>
         <div ng-repeat="friend in vm.friends track by $index">
             <div class="friend" ng-class="{current: vm.cFriend.room == friend.room,newMsg: friend.newMsgArrv }" ng-click="vm.chatWithFriend(friend)">{{friend.username}}-{{friend.id}}</div>
+        </div>
+        <div class="inbox">team chats</div>
+        <div ng-repeat=" team in vm.teams track by $index">
+            <div class="friend" ng-click="vm.teamChat(team);">
+                {{team.team_name}}
+            </div>
         </div>
     </div>
     <div  ng-if="vm.cFriend.id">
@@ -39,8 +46,30 @@
                 <input type="button" ng-click="vm.send(vm.cFriend);" value="send"/>
             </div>
         </div>
-
     </div>
+
+
+    <div  ng-if="vm.cTeam.team_id">
+        <div class="chat">
+            <div>I'm chatting in {{vm.cTeam.team_name}}</div>
+            <div ng-repeat="mem in  vm.cTeam.teamMember">
+                {{mem.username}}
+            </div>
+            <div class="messageBox">
+                <div class="radus" ng-repeat="msg in vm.userMesage[vm.cTeam.teamRoom] track by $index">
+                    {{ vm.friends[msg.fr].username || "myself"}}: {{msg.created_at|date:"yyyy-MM-dd hh:mm:ss"}}
+                    <p>{{msg.msg}}</p>
+            </div>
+            </div>
+
+            <div class="messageinput">
+                <input ng-model="vm.formModel.gotosend" />
+                <input type="button" ng-click="vm.sendTeam(vm.cTeam);" value="send"/>
+            </div>
+        </div>
+    </div>
+
+
 
 
     <div ng-controller="chatFindUserCtrl as findUser">
