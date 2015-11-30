@@ -13,7 +13,7 @@ module.exports ={
                 if(isNaN(uid)){
                     callback(null,[]);
                 }
-                conn.query('select user.id,user.username from gr_users as user inner join gr_user_follow ' +
+                conn.query('select user.id,user.username,user.avatar_file,user.intro from gr_users as user inner join gr_user_follow ' +
                     'as follow on follow.fid = user.id where follow.uid='+parseInt(uid, 10),
                     function(err,friends){
                         if(err) throw  err;
