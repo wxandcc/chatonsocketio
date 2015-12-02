@@ -12,8 +12,8 @@ var md5hashRoom = require("./roomName.js").md5hashRoom;
 
 function getRoomname(uid,fuid){
     var roomName = friendRoomPrefix+[uid,fuid].sort(function(a,b){ return a > b ? 1 : 0;}).join('_');
-    //return roomName;
-    return md5hashRoom(roomName);
+    return roomName;
+    //return md5hashRoom(roomName);
 };
 
 function checkRoom(uid,fuid){
