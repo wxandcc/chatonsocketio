@@ -111,10 +111,9 @@ angular.module('chat',[
         vm.chatWithFriend = function(friend){
             vm.cTeam = {};//私聊和群聊互斥
             if(vm.cFriend.room !== friend.room){
-                if(angular.isArray(vm.userMesage[friend.room]) && vm.userMesage[friend.room].length == 0 ){
+                if(!angular.isArray(vm.userMesage[friend.room]) || vm.userMesage[friend.room].length == 0 ){
                     socket.emit('client:chat:friend',friend);
                 }
-                console.log(vm.userMesage[friend.room]);
                 vm.cFriend = friend;
             }
             friend.newMsgArrv = false;
@@ -197,7 +196,9 @@ angular.module('chat',[
         vm.teamChat = function(team){
             vm.cFriend = {};
             vm.cTeam = team;
-            socket.emit("client:team:chat",team);
+            if(!angular.isArray(vm.userMesage[team.teamRoom]) || vm.userMesage[team.teamRoom].length == 0 ){
+                socket.emit('client:team:chat',team);
+            }
         };
 
         vm.sendTeam = function(team){

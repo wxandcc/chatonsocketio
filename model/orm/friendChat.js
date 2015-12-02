@@ -19,10 +19,11 @@ function getRoomname(uid,fuid){
 function checkRoom(uid,fuid){
     conn.query("select id from gr_chat_private_rooms where ? and ?  ",[{fr:uid},{tid:fuid}],function(error,result){
         if(error) throw error;
+        console.log(result);
         if(result[0]){
             return;
         }else{
-            conn.query("insert into gr_chat_private_rooms set ? ",{fr:uid,tid:fuid}); //ï¿½Çºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï?
+            conn.query("insert into gr_chat_private_rooms set ? ",{fr:uid,tid:fuid});
         }
     });
 };

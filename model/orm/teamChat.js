@@ -9,7 +9,8 @@ var teamChatRoomPre = "teamChat_";
 
 module.exports = {
     getTeams: function(uid,cb){
-                pool.query("select member.user_id as uid,team.team_name,team.id as team_id from gr_club_team as team join gr_club_team_member as member on member.team_id = team.id where member.user_id = ? "
+                pool.query("select member.user_id as uid,team.team_name,team.id as team_id from gr_club_team as team join gr_club_team_member as member" +
+                    " on member.team_id = team.id where team.`disband_at` is NULL and member.`leave_at` is NULL and member.user_id = ? "
                     ,uid,function(error,datas){
                         if(error) throw  error;
                         cb(datas);
@@ -17,7 +18,7 @@ module.exports = {
                 );
             },
     getTeamsMembers: function(team,cb){
-                pool.query("select users.id,users.username from gr_users as users join gr_club_team_member as member on member.user_id = users.id where member.team_id= ? "
+                pool.query("select users.id,users.username from gr_users as users join gr_club_team_member as member on member.user_id = users.id where  member.`leave_at` is NULL and member.team_id= ? "
                     ,[team.team_id],function(error,users){
                         if(error) throw error;
                         cb(users,team);
