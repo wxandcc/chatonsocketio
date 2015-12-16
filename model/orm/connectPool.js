@@ -10,6 +10,7 @@ var pool  = mysql.createPool({
     user            : 'root',
     password        : '',
     database        : "gamerule"
+    //, debug: true
 });
 
 pool.on("connection",function(connection){
